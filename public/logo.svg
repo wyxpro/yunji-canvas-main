@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f5576c;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#4facfe;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle (optional subtle backdrop) -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#f0f4ff" stroke-width="2" opacity="0.3"/>
+  
+  <!-- Main cloud shape -->
+  <path d="M 60 100 
+           Q 60 80, 80 75 
+           Q 85 55, 105 55 
+           Q 120 55, 130 65
+           Q 145 60, 155 70
+           Q 165 75, 165 90
+           Q 165 100, 155 105
+           L 70 105
+           Q 60 105, 60 100 Z" 
+        fill="url(#cloudGradient)" 
+        opacity="0.9"/>
+  
+  <!-- Trail dots with gradient effect (representing workflow/canvas nodes) -->
+  <circle cx="50" cy="130" r="6" fill="url(#trailGradient)" opacity="0.8">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="75" cy="135" r="5" fill="url(#trailGradient)" opacity="0.7">
+    <animate attributeName="opacity" values="0.5;0.9;0.5" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="140" r="6" fill="url(#trailGradient)" opacity="0.8">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="125" cy="135" r="5" fill="url(#trailGradient)" opacity="0.7">
+    <animate attributeName="opacity" values="0.5;0.9;0.5" dur="2s" begin="0.9s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="150" cy="130" r="6" fill="url(#trailGradient)" opacity="0.8">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" begin="1.2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Connecting flowing lines (subtle trail effect) -->
+  <path d="M 50 130 Q 62.5 132.5, 75 135" 
+        stroke="url(#trailGradient)" 
+        stroke-width="2" 
+        fill="none" 
+        opacity="0.4"
+        stroke-linecap="round"/>
+  <path d="M 75 135 Q 87.5 137.5, 100 140" 
+        stroke="url(#trailGradient)" 
+        stroke-width="2" 
+        fill="none" 
+        opacity="0.4"
+        stroke-linecap="round"/>
+  <path d="M 100 140 Q 112.5 137.5, 125 135" 
+        stroke="url(#trailGradient)" 
+        stroke-width="2" 
+        fill="none" 
+        opacity="0.4"
+        stroke-linecap="round"/>
+  <path d="M 125 135 Q 137.5 132.5, 150 130" 
+        stroke="url(#trailGradient)" 
+        stroke-width="2" 
+        fill="none" 
+        opacity="0.4"
+        stroke-linecap="round"/>
+</svg>
