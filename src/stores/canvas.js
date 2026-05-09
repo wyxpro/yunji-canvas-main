@@ -23,6 +23,160 @@ export const currentProjectId = ref(null)
 export const nodes = ref([])
 export const edges = ref([])
 
+const INPUT_EDGE_TYPES = {
+  PROMPT_ORDER: 'promptOrder',
+  IMAGE_ORDER: 'imageOrder',
+  IMAGE_ROLE: 'imageRole'
+}
+
+const normalizeHandle = (handle, fallback) => handle || fallback
+
+const getNodeById = (id) => nodes.value.find(node => node.id === id)
+
+const getEdgeTypeForConnection = (sourceNode, targetNode) => {
+  if (!sourceNode || !targetNode) return 'default'
+
+  if (
+    sourceNode.type === 'text' &&
+    ['imageConfig', 'videoConfig', 'storyboardPlan'].includes(targetNode.type)
+  ) {
+    return INPUT_EDGE_TYPES.PROMPT_ORDER
+  }
+
+  if (sourceNode.type === 'image' && targetNode.type === 'imageConfig') {
+    return INPUT_EDGE_TYPES.IMAGE_ORDER
+  }
+
+  if (sourceNode.type === 'image' && targetNode.type === 'videoConfig') {
+    return INPUT_EDGE_TYPES.IMAGE_ROLE
+  }
+
+  return 'default'
+}
+
+const makeEdgeId = (edge) => {
+  const sourceHandle = normalizeHandle(edge.sourceHandle, 'right')
+  const targetHandle = normalizeHandle(edge.targetHandle, 'left')
+  const type = edge.type || 'default'
+  return `edge_${edge.source}_${sourceHandle}_${edge.target}_${targetHandle}_${type}`
+}
+
+const findDuplicateEdge = (nextEdge) => {
+  const sourceHandle = normalizeHandle(nextEdge.sourceHandle, 'right')
+  const targetHandle = normalizeHandle(nextEdge.targetHandle, 'left')
+
+  return edges.value.find(edge =>
+    edge.source === nextEdge.source &&
+    edge.target === nextEdge.target &&
+    normalizeHandle(edge.sourceHandle, 'right') === sourceHandle &&
+    normalizeHandle(edge.targetHandle, 'left') === targetHandle
+  )
+}
+
+const normalizeOrderedEdges = (targetId, type, orderKey) => {
+  const orderedEdges = edges.value
+    .filter(edge => edge.target === targetId && edge.type === type)
+    .map((edge, index) => ({ edge, index }))
+    .sort((a, b) => {
+      const aOrder = Number(a.edge.data?.[orderKey] || 0)
+      const bOrder = Number(b.edge.data?.[orderKey] || 0)
+      if (aOrder !== bOrder) return aOrder - bOrder
+      return a.index - b.index
+    })
+
+  if (!orderedEdges.length) return
+
+  edges.value = edges.value.map(edge => {
+    const orderedIndex = orderedEdges.findIndex(item => item.edge.id === edge.id)
+    if (orderedIndex < 0) return edge
+
+    const nextOrder = orderedIndex + 1
+    if (edge.data?.[orderKey] === nextOrder) return edge
+
+    return {
+      ...edge,
+      data: {
+        ...(edge.data || {}),
+        [orderKey]: nextOrder
+      }
+    }
+  })
+}
+
+const normalizeImageRoleEdges = (targetId) => {
+  const roleEdges = edges.value.filter(edge => edge.target === targetId && edge.type === INPUT_EDGE_TYPES.IMAGE_ROLE)
+  if (!roleEdges.length) return
+
+  let hasFirst = false
+  let hasLast = false
+
+  edges.value = edges.value.map(edge => {
+    if (edge.target !== targetId || edge.type !== INPUT_EDGE_TYPES.IMAGE_ROLE) return edge
+
+    let imageRole = edge.data?.imageRole || 'input_reference'
+    if (imageRole === 'first_frame_image') {
+      if (hasFirst) imageRole = !hasLast ? 'last_frame_image' : 'input_reference'
+      hasFirst = hasFirst || imageRole === 'first_frame_image'
+      hasLast = hasLast || imageRole === 'last_frame_image'
+    } else if (imageRole === 'last_frame_image') {
+      if (hasLast) imageRole = 'input_reference'
+      hasLast = hasLast || imageRole === 'last_frame_image'
+    }
+
+    if (edge.data?.imageRole === imageRole) return edge
+    return {
+      ...edge,
+      data: {
+        ...(edge.data || {}),
+        imageRole
+      }
+    }
+  })
+}
+
+const normalizeTargetInputEdges = (targetId) => {
+  normalizeOrderedEdges(targetId, INPUT_EDGE_TYPES.PROMPT_ORDER, 'promptOrder')
+  normalizeOrderedEdges(targetId, INPUT_EDGE_TYPES.IMAGE_ORDER, 'imageOrder')
+  normalizeImageRoleEdges(targetId)
+}
+
+const buildEdge = (params) => {
+  const sourceNode = getNodeById(params.source)
+  const targetNode = getNodeById(params.target)
+  const type = params.type || getEdgeTypeForConnection(sourceNode, targetNode)
+  const sourceHandle = normalizeHandle(params.sourceHandle, 'right')
+  const targetHandle = normalizeHandle(params.targetHandle, 'left')
+  const data = { ...(params.data || {}) }
+
+  if (type === INPUT_EDGE_TYPES.PROMPT_ORDER && !data.promptOrder) {
+    data.promptOrder = edges.value.filter(edge => edge.target === params.target && edge.type === type).length + 1
+  }
+
+  if (type === INPUT_EDGE_TYPES.IMAGE_ORDER && !data.imageOrder) {
+    data.imageOrder = edges.value.filter(edge => edge.target === params.target && edge.type === type).length + 1
+  }
+
+  if (type === INPUT_EDGE_TYPES.IMAGE_ROLE && !data.imageRole) {
+    const sameTargetRoleEdges = edges.value.filter(edge => edge.target === params.target && edge.type === type)
+    const hasFirst = sameTargetRoleEdges.some(edge => edge.data?.imageRole === 'first_frame_image')
+    const hasLast = sameTargetRoleEdges.some(edge => edge.data?.imageRole === 'last_frame_image')
+    data.imageRole = !hasFirst ? 'first_frame_image' : (!hasLast ? 'last_frame_image' : 'input_reference')
+  }
+
+  const edge = {
+    ...params,
+    sourceHandle,
+    targetHandle,
+    type: type === 'default' ? undefined : type,
+    data: Object.keys(data).length ? data : undefined
+  }
+
+  return {
+    id: params.id || makeEdgeId(edge),
+    ...edge
+  }
+}
+
 // Viewport state | 视口状态
 export const canvasViewport = ref({ x: 100, y: 50, zoom: 0.8 })
 
@@ -207,13 +361,46 @@ export const duplicateNode = (id) => {
 
 // Add edge | 添加边
 export const addEdge = (params) => {
-  const newEdge = {
-    id: `edge_${params.source}_${params.target}`,
-    ...params
+  if (!params?.source || !params?.target) return null
+
+  if (params.source === params.target) {
+    window.$message?.warning('不能连接节点自身')
+    return null
   }
+
+  const sourceNode = getNodeById(params.source)
+  const targetNode = getNodeById(params.target)
+  if (!sourceNode || !targetNode) return null
+
+  const newEdge = buildEdge(params)
+  const duplicate = findDuplicateEdge(newEdge)
+
+  if (duplicate) {
+    edges.value = edges.value.map(edge =>
+      edge.id === duplicate.id
+        ? {
+            ...edge,
+            type: newEdge.type,
+            sourceHandle: newEdge.sourceHandle,
+            targetHandle: newEdge.targetHandle,
+            data: {
+              ...(edge.data || {}),
+              ...(newEdge.data || {})
+            }
+          }
+        : edge
+    )
+    normalizeTargetInputEdges(newEdge.target)
+    saveToHistory()
+    debouncedSave()
+    return duplicate.id
+  }
+
   edges.value = [...edges.value, newEdge]
+  normalizeTargetInputEdges(newEdge.target)
   saveToHistory() // Save after adding edge | 添加连线后保存
   debouncedSave() // Auto-save project | 自动保存项目
+  return newEdge.id
 }
 
 // Update edge data | 更新边数据
@@ -227,7 +414,11 @@ export const updateEdge = (id, data) => {
 
 // Remove edge | 删除边
 export const removeEdge = (id) => {
+  const currentEdge = edges.value.find(edge => edge.id === id)
   edges.value = edges.value.filter(edge => edge.id !== id)
+  if (currentEdge?.target) {
+    normalizeTargetInputEdges(currentEdge.target)
+  }
   saveToHistory() // Save after removing edge | 删除连线后保存
   debouncedSave() // Auto-save project | 自动保存项目
 }

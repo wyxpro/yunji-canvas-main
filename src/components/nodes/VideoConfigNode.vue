@@ -170,6 +170,8 @@ const normalizeRatioKey = (ratio) => {
   if (typeof ratio === 'string' && ratio.includes(':')) {
     return ratio.replace(':', 'x')
   }
+  if (ratio === '16x9') return '1280x720'
+  if (ratio === '9x16') return '720x1280'
   return ratio
 }
 
@@ -356,8 +358,16 @@ const getConnectedInputs = () => {
         const order = edge.data?.promptOrder || 1
         prompts.push({ order, content, nodeId: sourceNode.id })
       }
-    } else if (sourceNode.type === 'image' && sourceNode.data?.url) {
-      const imageData = sourceNode.data.base64 || sourceNode.data.url
+    } else if (sourceNode.type === 'image' && (sourceNode.data?.url || sourceNode.data?.sourceUrl || sourceNode.data?.base64)) {
+      const displayUrl = String(sourceNode.data?.url || '')
+      const imageData = {
+        url: displayUrl,
+        sourceUrl: sourceNode.data?.sourceUrl || '',
+        base64: sourceNode.data?.base64 || '',
+        fileName: sourceNode.data?.fileName || `${sourceNode.id}.png`,
+        nodeId: sourceNode.id
+      }
+      if (!imageData.url && !imageData.sourceUrl && !imageData.base64) continue
       const role = edge.data?.imageRole || 'first_frame_image'
 
       if (role === 'first_frame_image') {

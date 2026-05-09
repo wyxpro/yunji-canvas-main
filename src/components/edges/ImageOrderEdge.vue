@@ -20,7 +20,7 @@
         size="small"
       >
         <button 
-          class="flex items-center justify-center w-6 h-6 text-[10px] font-bold rounded-full bg-blue-500 text-white border-2 border-[color:var(--bg-secondary)] shadow-lg hover:scale-110 transition-transform"
+          class="flex items-center justify-center w-6 h-6 text-[10px] font-bold rounded-full bg-blue-500 text-white border-2 border-[color:var(--bg-secondary)] shadow-sm transition-colors hover:bg-blue-400"
         >
           {{ currentOrder }}
         </button>
@@ -29,7 +29,7 @@
       <button 
         v-show="showDelete"
         @click="handleDelete"
-        class="w-5 h-5 flex items-center justify-center rounded-full bg-red-500/80 hover:bg-red-500 text-white transition-all hover:scale-110"
+        class="w-5 h-5 flex items-center justify-center rounded-full bg-red-500/80 hover:bg-red-500 text-white transition-colors"
         title="删除连线"
       >
         <n-icon :size="10"><CloseOutline /></n-icon>
@@ -40,16 +40,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { BaseEdge, EdgeLabelRenderer, getBezierPath, useVueFlow } from '@vue-flow/core'
+import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@vue-flow/core'
 import { NDropdown, NIcon } from 'naive-ui'
 import { CloseOutline } from '@vicons/ionicons5'
-import { edges, removeEdge } from '../../stores/canvas'
+import { edges, removeEdge, updateEdge } from '../../stores/canvas'
 
 // Delete button visibility | 删除按钮可见性
 const showDelete = ref(false)
-
-// Get VueFlow instance | 获取 VueFlow 实例
-const { updateEdgeData } = useVueFlow()
 
 const props = defineProps({
   id: String,
@@ -129,11 +126,11 @@ const handleOrderSelect = (newOrder) => {
   
   // If another edge has this order, swap with current | 如果另一条边有此顺序，则交换
   if (edgeWithSameOrder) {
-    updateEdgeData(edgeWithSameOrder.id, { imageOrder: currentOrder.value })
+    updateEdge(edgeWithSameOrder.id, { imageOrder: currentOrder.value })
   }
   
   // Update current edge order | 更新当前边顺序
-  updateEdgeData(props.id, { imageOrder: newOrder })
+  updateEdge(props.id, { imageOrder: newOrder })
 }
 
 // Handle delete | 处理删除

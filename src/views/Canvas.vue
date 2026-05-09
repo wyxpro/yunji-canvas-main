@@ -1,14 +1,14 @@
 <template>
   <!-- Canvas page | 画布页面 -->
   <div
-    class="h-screen w-screen flex flex-col bg-[var(--bg-primary)] overflow-hidden font-sans relative selection:bg-purple-500/30"
+    class="canvas-page h-screen w-screen flex flex-col bg-[var(--bg-primary)] overflow-hidden font-sans relative selection:bg-purple-500/30"
     :class="{ 'is-dragging': isNodeDragging }"
   >
     
     <!-- Floating HUD Header -->
     <header class="absolute top-6 left-6 right-6 h-14 z-40 flex items-center justify-between px-2 pointer-events-none">
       <!-- Left Controls -->
-      <div class="pointer-events-auto flex items-center gap-3 bg-[var(--glass-bg)] backdrop-blur-xl rounded-full border border-[color:var(--glass-border)] px-4 py-2 shadow-glass transition-all hover:border-purple-500/30 hover:shadow-neon">
+      <div class="pointer-events-auto flex items-center gap-3 bg-[var(--glass-bg)] rounded-full border border-[color:var(--glass-border)] px-4 py-2 shadow-sm transition-all hover:border-purple-500/20">
         <button 
           @click="goBack"
           class="p-1.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -25,7 +25,7 @@
       </div>
 
       <!-- Right Controls -->
-      <div class="pointer-events-auto flex items-center gap-3 bg-[var(--glass-bg)] backdrop-blur-xl rounded-full border border-[color:var(--glass-border)] px-4 py-2 shadow-glass">
+      <div class="pointer-events-auto flex items-center gap-3 bg-[var(--glass-bg)] rounded-full border border-[color:var(--glass-border)] px-4 py-2 shadow-sm">
         <button 
           @click="toggleTheme"
           class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[var(--text-secondary)] hover:text-[var(--accent-color)]"
@@ -57,7 +57,7 @@
     <!-- Main canvas area -->
     <div class="flex-1 relative overflow-hidden bg-[var(--bg-primary)]">
       <!-- Deep Space Background -->
-      <div class="absolute inset-0 z-0 opacity-40 pointer-events-none bg-gradient-to-b from-transparent to-white/60 dark:to-[#0a0f1c]/50">
+      <div class="absolute inset-0 z-0 opacity-35 pointer-events-none">
         <Background :gap="40" :size="1" :color="isDark ? '#334155' : '#cbd5e1'" />
       </div>
 
@@ -99,7 +99,7 @@
           position="bottom-right"
           :pannable="true"
           :zoomable="true"
-class="!bg-[var(--glass-bg)] !border !border-[color:var(--glass-border)] !rounded-2xl !bottom-24 !right-6 backdrop-blur-xl !shadow-2xl"
+class="!bg-[var(--glass-bg)] !border !border-[color:var(--glass-border)] !rounded-2xl !bottom-24 !right-6 !shadow-lg"
           node-color="#8b5cf6"
           :mask-color="isDark ? 'rgba(0,0,0,0.6)' : 'rgba(2, 6, 23, 0.12)'"
         />
@@ -107,10 +107,10 @@ class="!bg-[var(--glass-bg)] !border !border-[color:var(--glass-border)] !rounde
 
       <!-- HUD Left Toolbar -->
       <aside class="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-4 p-2 z-30 pointer-events-none">
-<div class="pointer-events-auto flex flex-col gap-2 bg-[var(--glass-bg)] backdrop-blur-xl rounded-2xl border border-[color:var(--glass-border)] p-2 shadow-glass transition-all hover:border-purple-500/20">
+<div class="pointer-events-auto flex flex-col gap-2 bg-[var(--glass-bg)] rounded-2xl border border-[color:var(--glass-border)] p-2 shadow-sm transition-all hover:border-purple-500/20">
           <button 
             @click="showNodeMenu = !showNodeMenu"
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] hover:scale-110 transition-transform"
+            class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-600 text-white shadow-sm hover:bg-purple-500 transition-colors"
             title="添加节点"
           >
             <n-icon :size="20"><add-outline /></n-icon>
@@ -144,7 +144,7 @@ class="!bg-[var(--glass-bg)] !border !border-[color:var(--glass-border)] !rounde
       <Transition name="fade-slide">
         <div 
           v-if="showNodeMenu"
-          class="absolute left-24 top-1/2 -translate-y-1/2 bg-[var(--glass-bg)] backdrop-blur-2xl rounded-2xl border border-[color:var(--glass-border)] shadow-[0_0_50px_rgba(0,0,0,0.18)] dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] p-2 z-40 w-56 flex flex-col gap-1 ring-1 ring-black/5 dark:ring-white/5"
+          class="absolute left-24 top-1/2 -translate-y-1/2 bg-[var(--glass-bg)] rounded-2xl border border-[color:var(--glass-border)] shadow-lg p-2 z-40 w-56 flex flex-col gap-1"
         >
           <div class="px-3 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b border-black/5 dark:border-white/5 mb-1">添加到画布</div>
           <button 
@@ -162,7 +162,7 @@ class="!bg-[var(--glass-bg)] !border !border-[color:var(--glass-border)] !rounde
       </Transition>
 
       <!-- Bottom Controls (Zoom HUD) -->
-      <div class="absolute bottom-6 left-6 flex items-center gap-1 bg-[var(--glass-bg)] backdrop-blur-xl rounded-full border border-[color:var(--glass-border)] p-1.5 z-30 shadow-glass">
+      <div class="absolute bottom-6 left-6 flex items-center gap-1 bg-[var(--glass-bg)] rounded-full border border-[color:var(--glass-border)] p-1.5 z-30 shadow-sm">
         <button 
           @click="fitView({ padding: 0.2 })" 
           class="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -186,7 +186,7 @@ class="!bg-[var(--glass-bg)] !border !border-[color:var(--glass-border)] !rounde
         <Transition name="fade">
           <div 
             v-if="isProcessing" 
-            class="mb-4 mx-auto max-w-fit px-4 py-2 bg-white/90 dark:bg-[#0a0f1c]/90 backdrop-blur-md rounded-full border border-purple-500/30 shadow-[0_0_20px_rgba(139,92,246,0.1)] flex items-center gap-3"
+            class="mb-4 mx-auto max-w-fit px-4 py-2 bg-white/90 dark:bg-[#0a0f1c]/90 rounded-full border border-purple-500/20 shadow-sm flex items-center gap-3"
           >
             <n-spin :size="14" stroke="#a855f7" />
             <span class="text-xs font-medium text-purple-600 dark:text-purple-200 tracking-wide animate-pulse">AI 思考中</span>
@@ -194,10 +194,7 @@ class="!bg-[var(--glass-bg)] !border !border-[color:var(--glass-border)] !rounde
         </Transition>
 
         <div class="relative group">
-          <!-- Neon Glow -->
-          <div class="absolute -inset-[1px] bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[20px] opacity-30 group-hover:opacity-80 blur-md transition duration-500"></div>
-          
-          <div class="relative bg-white dark:bg-[#0a0f1c] rounded-[19px] border border-black/5 dark:border-white/10 p-1 shadow-2xl flex items-end gap-2">
+          <div class="relative bg-white dark:bg-[#0a0f1c] rounded-[19px] border border-black/10 dark:border-white/10 p-1 shadow-lg flex items-end gap-2">
             <!-- AI Polish Button -->
              <button 
               @click="handlePolish"
@@ -2011,23 +2008,7 @@ const handleAiGenerateWorkflow = async ({ prompt, useSelection = true } = {}) =>
 }
 
 const onConnect = (params) => {
-  const sourceNode = nodes.value.find(n => n.id === params.source)
-  const targetNode = nodes.value.find(n => n.id === params.target)
-  
-  if (sourceNode?.type === 'image' && targetNode?.type === 'videoConfig') {
-    addEdge({ ...params, type: 'imageRole', data: { imageRole: 'first_frame_image' } })
-  } else if (sourceNode?.type === 'text' && targetNode?.type === 'videoConfig') {
-    const existingTextEdges = edges.value.filter(e => e.target === params.target && e.type === 'promptOrder')
-    addEdge({ ...params, type: 'promptOrder', data: { promptOrder: existingTextEdges.length + 1 } })
-  } else if (sourceNode?.type === 'text' && targetNode?.type === 'imageConfig') {
-    const existingTextEdges = edges.value.filter(e => e.target === params.target && e.type === 'promptOrder')
-    addEdge({ ...params, type: 'promptOrder', data: { promptOrder: existingTextEdges.length + 1 } })
-  } else if (sourceNode?.type === 'image' && targetNode?.type === 'imageConfig') {
-    const existingImageEdges = edges.value.filter(e => e.target === params.target && e.type === 'imageOrder')
-    addEdge({ ...params, type: 'imageOrder', data: { imageOrder: existingImageEdges.length + 1 } })
-  } else {
-    addEdge(params)
-  }
+  addEdge(params)
 }
 
 const bringNodeToFront = (nodeId) => {
@@ -2418,6 +2399,44 @@ onUnmounted(() => {
   height: 100%;
 }
 
+.canvas-page .shadow-neon,
+.canvas-page .hover\:shadow-neon:hover {
+  box-shadow: none !important;
+}
+
+.canvas-page .text-node,
+.canvas-page .image-node,
+.canvas-page .video-node,
+.canvas-page .image-config-node,
+.canvas-page .video-config-node,
+.canvas-page .storyboard-plan-node {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+.dark .canvas-page .text-node,
+.dark .canvas-page .image-node,
+.dark .canvas-page .video-node,
+.dark .canvas-page .image-config-node,
+.dark .canvas-page .video-config-node,
+.dark .canvas-page .storyboard-plan-node {
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24) !important;
+}
+
+.canvas-page .text-node:hover,
+.canvas-page .image-node:hover,
+.canvas-page .video-node:hover,
+.canvas-page .image-config-node:hover,
+.canvas-page .video-config-node:hover,
+.canvas-page .storyboard-plan-node:hover {
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12) !important;
+}
+
+.canvas-page .text-node [class*="shadow-[0_0"],
+.canvas-page .storyboard-plan-node [class*="shadow-[0_0"],
+.canvas-page .frame-node [class*="shadow-[0_0"] {
+  box-shadow: none !important;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -2505,16 +2524,18 @@ onUnmounted(() => {
 }
 
 .vue-flow__edge:hover .vue-flow__edge-path {
-  stroke-width: 3;
+  stroke-width: 2.5;
 }
 
 /* Handle styling | 连接点样式 */
 .vue-flow__handle {
   transition: transform 0.15s ease, background 0.15s ease;
+  box-shadow: none !important;
 }
 
 .vue-flow__handle:hover {
-  transform: scale(1.3);
+  transform: scale(1.15);
+  box-shadow: none !important;
 }
 
 /* Disable text selection during drag | 拖动时禁用文本选择 */

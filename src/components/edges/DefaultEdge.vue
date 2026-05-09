@@ -10,7 +10,7 @@
         transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
         pointerEvents: 'all'
       }"
-      class="nodrag nopan"
+      class="nodrag nopan w-5 h-5 flex items-center justify-center"
       @mouseenter="showDelete = true"
       @mouseleave="showDelete = false"
     >
@@ -18,16 +18,11 @@
       <button 
         v-show="showDelete"
         @click="handleDelete"
-        class="w-5 h-5 flex items-center justify-center rounded-full bg-red-500/80 hover:bg-red-500 text-white transition-all hover:scale-110 shadow-lg"
+        class="w-5 h-5 flex items-center justify-center rounded-full bg-red-500/80 hover:bg-red-500 text-white transition-colors"
         title="删除连线"
       >
         <n-icon :size="10"><CloseOutline /></n-icon>
       </button>
-      <!-- Hover indicator when not showing delete | 不显示删除时的悬浮指示 -->
-      <div 
-        v-show="!showDelete"
-        class="w-2 h-2 rounded-full bg-purple-500/50"
-      ></div>
     </div>
   </EdgeLabelRenderer>
 </template>

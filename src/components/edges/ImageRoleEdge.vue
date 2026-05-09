@@ -20,7 +20,7 @@
         size="small"
       >
         <button 
-          class="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-white/90 dark:bg-[#0a0f1c]/90 backdrop-blur-sm border border-purple-500/30 text-purple-700 dark:text-purple-300 shadow-lg hover:border-purple-400/50 transition-all"
+          class="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-white/90 dark:bg-[#0a0f1c]/90 border border-purple-500/30 text-purple-700 dark:text-purple-300 shadow-sm hover:border-purple-400/50 transition-colors"
         >
           {{ currentRoleLabel }}
           <n-icon :size="10"><ChevronDownOutline /></n-icon>
@@ -30,7 +30,7 @@
       <button 
         v-show="showDelete"
         @click="handleDelete"
-        class="w-5 h-5 flex items-center justify-center rounded-full bg-red-500/80 hover:bg-red-500 text-white transition-all hover:scale-110"
+        class="w-5 h-5 flex items-center justify-center rounded-full bg-red-500/80 hover:bg-red-500 text-white transition-colors"
         title="删除连线"
       >
         <n-icon :size="10"><CloseOutline /></n-icon>
@@ -41,16 +41,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { BaseEdge, EdgeLabelRenderer, getBezierPath, useVueFlow } from '@vue-flow/core'
+import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@vue-flow/core'
 import { NDropdown, NIcon } from 'naive-ui'
 import { ChevronDownOutline, CloseOutline } from '@vicons/ionicons5'
-import { edges, removeEdge } from '../../stores/canvas'
+import { edges, removeEdge, updateEdge } from '../../stores/canvas'
 
 // Delete button visibility | 删除按钮可见性
 const showDelete = ref(false)
-
-// Get VueFlow instance | 获取 VueFlow 实例
-const { updateEdgeData } = useVueFlow()
 
 const props = defineProps({
   id: String,
@@ -121,12 +118,12 @@ const handleRoleSelect = (role) => {
     // Auto-switch the other edge to the opposite role | 自动切换其他边到相反角色
     sameTargetEdges.forEach(edge => {
       const oppositeRole = role === 'first_frame_image' ? 'last_frame_image' : 'first_frame_image'
-      updateEdgeData(edge.id, { imageRole: oppositeRole })
+      updateEdge(edge.id, { imageRole: oppositeRole })
     })
   }
   
   // Update current edge role | 更新当前边角色
-  updateEdgeData(props.id, { imageRole: role })
+  updateEdge(props.id, { imageRole: role })
 }
 
 // Handle delete | 处理删除

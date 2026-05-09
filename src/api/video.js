@@ -7,11 +7,12 @@ import { request } from '@/utils'
 // 创建视频任务
 export const createVideoTask = (data, options = {}) => {
   const { endpoint = '/videos' } = options
+  const isFormData = typeof FormData !== 'undefined' && data instanceof FormData
   return request({
     url: endpoint,
     method: 'post',
     data,
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: isFormData ? {} : { 'Content-Type': 'application/json' }
   })
 }
 

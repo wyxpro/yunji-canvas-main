@@ -156,6 +156,7 @@ import { ChevronDownOutline, ChevronForwardOutline, CopyOutline, TrashOutline, R
 import { useImageGeneration, useApiConfig } from '../../hooks'
 import { updateNode, addNode, addEdge, nodes, edges, duplicateNode, removeNode } from '../../stores/canvas'
 import { imageModelOptions, getModelSizeOptions, getModelQualityOptions, getModelConfig, DEFAULT_IMAGE_MODEL } from '../../stores/models'
+import { cacheImageForCanvas } from '../../utils/localDownload'
 
 const props = defineProps({
   id: String,
@@ -518,8 +519,18 @@ const handleGenerate = async (mode = 'auto') => {
 
     // Update image node with generated URL | 更新图片节点 URL
     if (result && result.length > 0) {
+      const cachedImage = await cacheImageForCanvas(result[0].url, {
+        fileNameBase: `image_${imageNodeId}_${Date.now()}`
+      })
+
       updateNode(imageNodeId, {
-        url: result[0].url,
+        url: cachedImage.url,
+        sourceUrl: cachedImage.sourceUrl,
+        fileName: cachedImage.fileName,
+        localFileName: cachedImage.fileName,
+        downloadStatus: cachedImage.downloadStatus,
+        downloadError: cachedImage.downloadError || '',
+        cachedAt: cachedImage.cachedAt,
         loading: false,
         label: '文生图',
         model: localModel.value,

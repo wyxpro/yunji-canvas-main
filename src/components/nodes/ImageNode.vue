@@ -196,6 +196,28 @@
       <Handle type="target" :position="Position.Left" id="left" :connectable="connectable" class="!w-3 !h-3 !bg-purple-500 !border-2 !border-[color:var(--bg-secondary)]" />
     </div>
 
+    <Teleport to="body">
+      <div
+        v-if="showPreview && data.url"
+        class="fixed inset-0 z-[10000] bg-black/85 flex items-center justify-center p-6"
+        @click="closePreview"
+      >
+        <button
+          class="absolute right-5 top-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+          title="关闭"
+          @click.stop="closePreview"
+        >
+          <n-icon :size="22"><CloseCircleOutline /></n-icon>
+        </button>
+        <img
+          :src="data.url"
+          :alt="data.label || '图片预览'"
+          class="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+          @click.stop
+        />
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -207,10 +229,11 @@
 import { ref, nextTick, computed } from 'vue'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import { NIcon } from 'naive-ui'
-import { TrashOutline, ExpandOutline, ImageOutline, CloseCircleOutline, CopyOutline, VideocamOutline, DownloadOutline, EyeOutline, BrushOutline, RefreshOutline, ColorWandOutline } from '@vicons/ionicons5'
+import { TrashOutline, ImageOutline, CloseCircleOutline, CopyOutline, VideocamOutline, DownloadOutline, EyeOutline, BrushOutline, RefreshOutline } from '@vicons/ionicons5'
 import { updateNode, removeNode, duplicateNode, addNode, addEdge, nodes, currentProjectId } from '../../stores/canvas'
 import { imageModelOptions } from '../../stores/models'
 import { uploadFileToAliyunOssIfConfigured } from '../../utils/assetStorage'
+import { downloadImageForCanvas } from '../../utils/localDownload'
 
 const props = defineProps({
   id: String,
@@ -242,9 +265,9 @@ const brushSize = ref(40)
 const isDrawing = ref(false)
 const canvasRef = ref(null)
 const imageContainerRef = ref(null)
-const interactionLayerRef = ref(null)
 const brushCursor = ref({ x: 0, y: 0, visible: false })
 const maskData = ref(null)
+const showPreview = ref(false)
 
 // Toggle inpaint mode | 切换涂抹模式
 const toggleInpaintMode = () => {
@@ -570,20 +593,36 @@ const handleImageGen = () => {
 // Handle preview | 处理预览
 const handlePreview = () => {
   if (props.data.url) {
-    window.open(props.data.url, '_blank')
+    showPreview.value = true
   }
+}
+
+const closePreview = () => {
+  showPreview.value = false
 }
 
 // Handle download | 处理下载
 const handleDownload = () => {
   if (props.data.url) {
-    const link = document.createElement('a')
-    link.href = props.data.url
-    link.download = props.data.fileName || `image_${Date.now()}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.$message?.success('图片下载中...')
+    downloadImageForCanvas(props.data.sourceUrl || props.data.url, {
+      fileNameBase: props.data.fileName || `image_${Date.now()}`
+    })
+      .then((downloadedImage) => {
+        updateNode(props.id, {
+          url: downloadedImage.url,
+          sourceUrl: downloadedImage.sourceUrl,
+          fileName: downloadedImage.fileName,
+          localFileName: downloadedImage.fileName,
+          downloadStatus: downloadedImage.downloadStatus,
+          downloadError: downloadedImage.downloadError || '',
+          downloadedAt: downloadedImage.downloadedAt,
+          updatedAt: Date.now()
+        })
+        window.$message?.success('图片下载中...')
+      })
+      .catch((err) => {
+        window.$message?.error(err?.message || '图片下载失败')
+      })
   }
 }
 

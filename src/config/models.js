@@ -91,7 +91,9 @@ export const VIDEO_RATIO_LIST = [
     { label: '4:3', key: '4x3' },
     { label: '1:1 (方形)', key: '1x1' },
     { label: '3:4', key: '3x4' },
-    { label: '9:16 (竖版)', key: '9x16' }
+    { label: '9:16 (竖版)', key: '9x16' },
+    { label: '1280x720 (横屏)', key: '1280x720' },
+    { label: '720x1280 (竖屏)', key: '720x1280' }
 ]
 
 // Video generation models | 视频生成模型
@@ -100,27 +102,48 @@ export const VIDEO_MODELS = [
         label: '豆包视频 720P',
         key: 'doubao-seedance-1-5-pro_720p',
         ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '5 秒', key: 5 }, { label: '10 秒', key: 10 }],
+        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
         defaultParams: { ratio: '16x9', duration: 5 }
     },
     {
         label: '可灵视频 O1',
         key: 'kling-video-o1',
         ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '5 秒', key: 5 }, { label: '10 秒', key: 10 }],
+        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
         defaultParams: { ratio: '16x9', duration: 5 }
     },
     {
         label: 'Wan 2.6 720P', key: 'wan2.6_720p',
         ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '5 秒', key: 5 }, { label: '10 秒', key: 10 }],
+        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
         defaultParams: { ratio: '16x9', duration: 5 }
     },
     {
         label: 'Sora 2', key: 'sora-2',
         ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '5 秒', key: 5 }, { label: '10 秒', key: 10 }],
+        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
         defaultParams: { ratio: '16x9', duration: 5 }
+    },
+    {
+        label: 'Grok Video 3',
+        key: 'grok-video-3',
+        ratios: VIDEO_RATIO_LIST.map(s => s.key),
+        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
+        defaultParams: { ratio: '16x9', duration: 5 }
+    },
+    {
+        label: 'Veo 3.1',
+        key: 'veo_3_1',
+        ratios: VIDEO_RATIO_LIST.map(s => s.key),
+        durs: [{ label: '8 秒', key: 8 }],
+        defaultParams: { ratio: '1280x720', duration: 8 }
+    },
+    {
+        label: 'Veo 3.1 Fast',
+        key: 'veo_3_1-fast',
+        ratios: VIDEO_RATIO_LIST.map(s => s.key),
+        durs: [{ label: '8 秒', key: 8 }],
+        defaultParams: { ratio: '1280x720', duration: 8 }
     }
 ]
 
@@ -159,6 +182,7 @@ export const VIDEO_RATIO_OPTIONS = VIDEO_RATIO_LIST
 // Video duration options | 视频时长选项
 export const VIDEO_DURATION_OPTIONS = [
     { label: '5 秒', key: 5 },
+    { label: '8 秒', key: 8 },
     { label: '10 秒', key: 10 }
 ]
 
