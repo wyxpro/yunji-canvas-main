@@ -342,10 +342,21 @@ export const useImageGeneration = () => {
 
       // Parse response (OpenAI format) | 解析响应
       const data = response.data || response
-      const generatedImages = (Array.isArray(data) ? data : [data]).map(item => ({
-        url: normalizeGeneratedImageUrl(item.url || item.b64_json || item),
-        revisedPrompt: item.revised_prompt || ''
-      }))
+      if (data?.error) {
+        throw new Error(data.error?.message || data.message || '图片生成失败')
+      }
+
+      const items = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : [data])
+      const generatedImages = items
+        .map(item => ({
+          url: normalizeGeneratedImageUrl(item?.url || item?.b64_json || (typeof item === 'string' ? item : '')),
+          revisedPrompt: item?.revised_prompt || ''
+        }))
+        .filter(item => item.url)
+
+      if (!generatedImages.length) {
+        throw new Error(data?.message || '图片生成失败：接口未返回图片地址')
+      }
 
       images.value = generatedImages
       currentImage.value = generatedImages[0] || null

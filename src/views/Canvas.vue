@@ -79,7 +79,7 @@
         :elevate-nodes-on-select="false"
         selection-key-code="Shift"
         :multi-selection-key-code="['Control', 'Shift']"
-        :delete-key-code="['Backspace', 'Delete']"
+        :delete-key-code="null"
         no-drag-class-name="nodrag"
         no-pan-class-name="nopan"
         @connect="onConnect"
@@ -214,6 +214,8 @@ class="!bg-[var(--glass-bg)] !border !border-[color:var(--glass-border)] !rounde
                 class="w-full bg-transparent resize-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 px-2 py-3 text-base font-light leading-relaxed disabled:opacity-50"
                 rows="1"
                 style="min-height: 24px; max-height: 120px;"
+                @click.stop
+                @keydown.stop
                 @keydown.enter.exact="handleEnterKey"
                 @keydown.enter.ctrl="sendMessage"
               />
@@ -395,7 +397,7 @@ import {
   SparklesOutline
 } from '@vicons/ionicons5'
 import { isDark, toggleTheme } from '../stores/theme'
-import { nodes, edges, addNode, addEdge, updateNode, updateNodeProps, initSampleData, loadProject, saveProject, clearCanvas, canvasViewport, updateViewport, undo, redo, canUndo, canRedo, manualSaveHistory, requestAutoSave } from '../stores/canvas'
+import { nodes, edges, addNode, addEdge, removeNode, removeEdge, updateNode, updateNodeProps, initSampleData, loadProject, saveProject, clearCanvas, canvasViewport, updateViewport, undo, redo, canUndo, canRedo, manualSaveHistory, requestAutoSave } from '../stores/canvas'
 import { loadAllModels } from '../stores/models'
 import {
   createWorkflowTemplateFromSelection,
@@ -475,6 +477,29 @@ const edgeTypes = {
   imageOrder: markRaw(ImageOrderEdge)
 }
 
+const isEditableTarget = (target) => {
+  if (!target || !(target instanceof HTMLElement)) return false
+  return !!target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"], .n-input, .nodrag')
+}
+
+const handleCanvasDeleteKey = (event) => {
+  if (!['Backspace', 'Delete'].includes(event.key)) return
+  if (isEditableTarget(event.target)) return
+
+  const selectedNodeIds = nodes.value
+    .filter(node => node.selected && !node.data?.locked)
+    .map(node => node.id)
+  const selectedEdgeIds = edges.value
+    .filter(edge => edge.selected)
+    .map(edge => edge.id)
+
+  if (!selectedNodeIds.length && !selectedEdgeIds.length) return
+
+  event.preventDefault()
+  selectedEdgeIds.forEach(id => removeEdge(id))
+  selectedNodeIds.forEach(id => removeNode(id))
+}
+
 // UI State
 const showNodeMenu = ref(false)
 const chatInput = ref('')
@@ -499,18 +524,82 @@ const renameValue = ref('')
 
 // Drag state | 拖动状态
 const isNodeDragging = ref(false)
-const onNodeDragStart = () => { isNodeDragging.value = true }
-const onNodeDragStop = () => {
+let dragStartNodesSnapshot = null
+
+const cloneNodeForDragSnapshot = (node) => JSON.parse(JSON.stringify(node))
+
+const rememberDragStartNodes = () => {
+  dragStartNodesSnapshot = nodes.value.map(cloneNodeForDragSnapshot)
+}
+
+const isFinitePosition = (position) => (
+  Number.isFinite(Number(position?.x)) && Number.isFinite(Number(position?.y))
+)
+
+const restoreMissingOrInvalidDragNodes = () => {
+  if (!dragStartNodesSnapshot) return false
+
+  const currentById = new Map(nodes.value.map(node => [node.id, node]))
+  let changed = false
+  const restoredNodes = [...nodes.value]
+
+  for (const before of dragStartNodesSnapshot) {
+    const current = currentById.get(before.id)
+
+    if (!current) {
+      restoredNodes.push(before)
+      changed = true
+      continue
+    }
+
+    if (!isFinitePosition(current.position)) {
+      const index = restoredNodes.findIndex(node => node.id === current.id)
+      if (index >= 0) {
+        restoredNodes[index] = {
+          ...current,
+          position: cloneNodeForDragSnapshot(before.position || { x: 0, y: 0 })
+        }
+        changed = true
+      }
+    }
+  }
+
+  if (changed) {
+    nodes.value = restoredNodes
+    window.$message?.warning('拖拽异常已自动恢复，卡片未被删除')
+  }
+
+  return changed
+}
+
+const finishNodeDrag = () => {
   isNodeDragging.value = false
+  const restored = restoreMissingOrInvalidDragNodes()
+  dragStartNodesSnapshot = null
+
   // Persist final positions after drag (avoid saving on every mousemove)
-  requestAutoSave()
+  if (restored) {
+    manualSaveHistory()
+  } else {
+    requestAutoSave()
+  }
+}
+
+const onNodeDragStart = () => {
+  isNodeDragging.value = true
+  rememberDragStartNodes()
+}
+const onNodeDragStop = () => {
+  finishNodeDrag()
 }
 
 // Selection drag (multi-node) | 多选拖动
-const onSelectionDragStart = () => { isNodeDragging.value = true }
+const onSelectionDragStart = () => {
+  isNodeDragging.value = true
+  rememberDragStartNodes()
+}
 const onSelectionDragStop = () => {
-  isNodeDragging.value = false
-  requestAutoSave()
+  finishNodeDrag()
 }
 
 const hasDownloadableAssets = computed(() => {
@@ -2037,6 +2126,13 @@ const handleViewportChange = (newViewport) => {
 }
 
 const onNodesChange = (changes) => {
+  if (isNodeDragging.value && changes.some(change => change.type === 'remove')) {
+    nextTick(() => {
+      restoreMissingOrInvalidDragNodes()
+    })
+    return
+  }
+
   // Save after node removals (keyboard delete etc.)
   if (changes.some(change => change.type === 'remove')) {
     nextTick(() => manualSaveHistory())
@@ -2371,6 +2467,7 @@ watch(() => route.params.id, (newId, oldId) => {
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
+  window.addEventListener('keydown', handleCanvasDeleteKey)
   initProjectsStore()
   loadProjectById(route.params.id)
   
@@ -2384,6 +2481,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkMobile)
+  window.removeEventListener('keydown', handleCanvasDeleteKey)
   saveProject()
 })
 </script>

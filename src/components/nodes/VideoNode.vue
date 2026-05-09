@@ -131,6 +131,29 @@
     <Handle type="target" :position="Position.Left" id="left" :connectable="connectable" class="!w-3 !h-3 !bg-purple-500 !border-2 !border-[color:var(--bg-secondary)]" />
     </div>
 
+    <Teleport to="body">
+      <div
+        v-if="showPreview && data.url"
+        class="fixed inset-0 z-[10000] bg-black/85 flex items-center justify-center p-6"
+        @click="closePreview"
+      >
+        <button
+          class="absolute right-5 top-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+          title="关闭"
+          @click.stop="closePreview"
+        >
+          <n-icon :size="22"><CloseCircleOutline /></n-icon>
+        </button>
+        <video
+          :src="data.url"
+          controls
+          autoplay
+          class="max-w-full max-h-full object-contain rounded-xl shadow-2xl bg-black"
+          @click.stop
+        />
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -163,6 +186,7 @@ const { updateNodeInternals } = useVueFlow()
 
 // Frame extraction loading | 帧提取加载
 const isExtractingFrame = ref(false)
+const showPreview = ref(false)
 
 // Model options | 模型选项
 const modelOptions = videoModelOptions
@@ -335,9 +359,12 @@ const handleDelete = () => {
 
 // Handle preview | 处理预览
 const handlePreview = () => {
-  if (props.data.url) {
-    window.open(props.data.url, '_blank')
-  }
+  if (!props.data.url) return
+  showPreview.value = true
+}
+
+const closePreview = () => {
+  showPreview.value = false
 }
 
 // Handle download | 处理下载

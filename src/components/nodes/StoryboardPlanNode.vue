@@ -39,6 +39,8 @@
           @blur="commitPrompt"
           @wheel.stop
           @mousedown.stop
+          @click.stop
+          @keydown.stop
           class="nodrag w-full bg-black/5 dark:bg-white/5 resize-none outline-none text-sm text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-600 min-h-[88px] leading-relaxed font-light rounded-xl border border-black/10 dark:border-white/10 px-3 py-3 focus:border-purple-500/50 focus:bg-black/[0.03] dark:focus:bg-white/[0.07] transition-colors"
           placeholder="输入剧情/分镜要求…（例如：女主在雨夜追逐，最后停在霓虹灯下回头微笑）"
         />
@@ -49,6 +51,8 @@
           <input
             v-model.number="localShotCount"
             @blur="commitShotCount"
+            @click.stop
+            @keydown.stop
             type="number"
             min="4"
             max="30"
@@ -127,6 +131,8 @@
                 <input
                   v-model="shot.title"
                   @blur="commitShots"
+                  @click.stop
+                  @keydown.stop
                   class="nodrag flex-1 bg-transparent text-xs text-gray-900 dark:text-gray-200 outline-none border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 focus:border-purple-500/50"
                   placeholder="镜头标题"
                 />
@@ -161,6 +167,8 @@
               <textarea
                 v-model="shot.prompt"
                 @blur="commitShots"
+                @click.stop
+                @keydown.stop
                 class="nodrag mt-2 w-full bg-transparent resize-none outline-none text-[12px] text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-600 leading-relaxed font-light rounded-lg border border-black/10 dark:border-white/10 px-2 py-2 focus:border-purple-500/50"
                 rows="3"
                 placeholder="镜头提示词（包含景别/机位/动作/光影/氛围…）"

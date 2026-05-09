@@ -451,7 +451,7 @@ const handleGenerate = async (mode = 'auto') => {
     // Replace mode: find any connected image node | 替换模式：查找任意连接的图片节点
     imageNodeId = findConnectedOutputImageNode(false)
     if (imageNodeId) {
-      updateNode(imageNodeId, { loading: true, url: '' })
+      updateNode(imageNodeId, { loading: true, error: '', url: '' })
     }
   } else if (mode === 'new') {
     // New mode: always create new node | 新建模式：始终创建新节点
@@ -460,7 +460,7 @@ const handleGenerate = async (mode = 'auto') => {
     // Auto mode: check for empty connected node first | 自动模式：先检查空白连接节点
     imageNodeId = findConnectedOutputImageNode(true)
     if (imageNodeId) {
-      updateNode(imageNodeId, { loading: true })
+      updateNode(imageNodeId, { loading: true, error: '' })
     }
   }
   
@@ -481,6 +481,7 @@ const handleGenerate = async (mode = 'auto') => {
     imageNodeId = addNode('image', { x: nodeX + 400, y: nodeY + yOffset }, {
       url: '',
       loading: true,
+      error: '',
       label: '图像生成结果'
     })
 
@@ -516,30 +517,34 @@ const handleGenerate = async (mode = 'auto') => {
     }
 
     const result = await generate(params)
+    const firstImageUrl = result?.[0]?.url
 
     // Update image node with generated URL | 更新图片节点 URL
-    if (result && result.length > 0) {
-      const cachedImage = await cacheImageForCanvas(result[0].url, {
-        fileNameBase: `image_${imageNodeId}_${Date.now()}`
-      })
-
-      updateNode(imageNodeId, {
-        url: cachedImage.url,
-        sourceUrl: cachedImage.sourceUrl,
-        fileName: cachedImage.fileName,
-        localFileName: cachedImage.fileName,
-        downloadStatus: cachedImage.downloadStatus,
-        downloadError: cachedImage.downloadError || '',
-        cachedAt: cachedImage.cachedAt,
-        loading: false,
-        label: '文生图',
-        model: localModel.value,
-        updatedAt: Date.now()
-      })
-      
-      // Mark this config node as executed | 标记配置节点已执行
-      updateNode(props.id, { executed: true, outputNodeId: imageNodeId })
+    if (!firstImageUrl) {
+      throw new Error('图片生成失败：接口未返回图片地址')
     }
+
+    const cachedImage = await cacheImageForCanvas(firstImageUrl, {
+      fileNameBase: `image_${imageNodeId}_${Date.now()}`
+    })
+
+    updateNode(imageNodeId, {
+      url: cachedImage.url,
+      sourceUrl: cachedImage.sourceUrl,
+      fileName: cachedImage.fileName,
+      localFileName: cachedImage.fileName,
+      downloadStatus: cachedImage.downloadStatus,
+      downloadError: cachedImage.downloadError || '',
+      cachedAt: cachedImage.cachedAt,
+      loading: false,
+      error: '',
+      label: '文生图',
+      model: localModel.value,
+      updatedAt: Date.now()
+    })
+    
+    // Mark this config node as executed | 标记配置节点已执行
+    updateNode(props.id, { executed: true, outputNodeId: imageNodeId })
     window.$message?.success('图片生成成功')
   } catch (err) {
     // Update node to show error | 更新节点显示错误

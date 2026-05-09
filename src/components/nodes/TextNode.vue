@@ -37,7 +37,9 @@
           @blur="updateContent"
           @wheel.stop
           @mousedown.stop
-          class="w-full bg-black/5 dark:bg-white/5 resize-none outline-none text-sm text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-600 min-h-[110px] leading-relaxed font-light rounded-xl border border-black/10 dark:border-white/10 px-3 py-3 focus:border-purple-500/50 focus:bg-black/[0.03] dark:focus:bg-white/[0.07] transition-colors"
+          @click.stop
+          @keydown.stop
+          class="nodrag nopan w-full bg-black/5 dark:bg-white/5 resize-none outline-none text-sm text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-600 min-h-[110px] leading-relaxed font-light rounded-xl border border-black/10 dark:border-white/10 px-3 py-3 focus:border-purple-500/50 focus:bg-black/[0.03] dark:focus:bg-white/[0.07] transition-colors"
           placeholder="输入图片/视频提示词..."
         />
 
