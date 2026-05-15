@@ -50,11 +50,9 @@ export const BANANA_SIZE_OPTIONS = [
 // Image generation models | 图片生成模型
 export const IMAGE_MODELS = [
     {
-        label: '豆包 Seedream 4.5',
-        key: 'doubao-seedream-4-5-251128',
+        label: 'GPT Image 2',
+        key: 'gpt-image-2',
         sizes: SEEDREAM_SIZE_OPTIONS.map(s => s.key),
-        qualities: SEEDREAM_QUALITY_OPTIONS,
-        getSizesByQuality: (quality) => quality === '4k' ? SEEDREAM_4K_SIZE_OPTIONS : SEEDREAM_SIZE_OPTIONS,
         defaultParams: {
             size: '2048x2048',
             quality: 'standard',
@@ -63,7 +61,7 @@ export const IMAGE_MODELS = [
     },
     {
         label: 'Nano Banana',
-        key: 'nano-banana',
+        key: 'gemini-3.1-flash-image-preview',
         tips: '尺寸写在提示词中: 尺寸 9:16',
         sizes: [],
         defaultParams: {
@@ -73,10 +71,8 @@ export const IMAGE_MODELS = [
     },
     {
         label: 'Nano Banana Pro',
-        key: 'nano-banana-pro',
+        key: 'gemini-3-pro-image-preview',
         sizes: BANANA_SIZE_OPTIONS.map(s => s.key),
-        // qualities: SEEDREAM_QUALITY_OPTIONS,
-        // getSizesByQuality: (quality) => quality === '4k' ? SEEDREAM_4K_SIZE_OPTIONS : SEEDREAM_SIZE_OPTIONS,
         defaultParams: {
             size: '1x1',
             quality: 'standard',
@@ -99,30 +95,11 @@ export const VIDEO_RATIO_LIST = [
 // Video generation models | 视频生成模型
 export const VIDEO_MODELS = [
     {
-        label: '豆包视频 720P',
-        key: 'doubao-seedance-1-5-pro_720p',
+        label: 'Veo 3.1 Fast',
+        key: 'veo_3_1-fast',
         ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
-        defaultParams: { ratio: '16x9', duration: 5 }
-    },
-    {
-        label: '可灵视频 O1',
-        key: 'kling-video-o1',
-        ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
-        defaultParams: { ratio: '16x9', duration: 5 }
-    },
-    {
-        label: 'Wan 2.6 720P', key: 'wan2.6_720p',
-        ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
-        defaultParams: { ratio: '16x9', duration: 5 }
-    },
-    {
-        label: 'Sora 2', key: 'sora-2',
-        ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
-        defaultParams: { ratio: '16x9', duration: 5 }
+        durs: [{ label: '8 秒', key: 8 }],
+        defaultParams: { ratio: '1280x720', duration: 8 }
     },
     {
         label: 'Grok Video 3',
@@ -130,20 +107,6 @@ export const VIDEO_MODELS = [
         ratios: VIDEO_RATIO_LIST.map(s => s.key),
         durs: [{ label: '5 秒', key: 5 }, { label: '8 秒', key: 8 }, { label: '10 秒', key: 10 }],
         defaultParams: { ratio: '16x9', duration: 5 }
-    },
-    {
-        label: 'Veo 3.1',
-        key: 'veo_3_1',
-        ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '8 秒', key: 8 }],
-        defaultParams: { ratio: '1280x720', duration: 8 }
-    },
-    {
-        label: 'Veo 3.1 Fast',
-        key: 'veo_3_1-fast',
-        ratios: VIDEO_RATIO_LIST.map(s => s.key),
-        durs: [{ label: '8 秒', key: 8 }],
-        defaultParams: { ratio: '1280x720', duration: 8 }
     }
 ]
 
@@ -187,8 +150,8 @@ export const VIDEO_DURATION_OPTIONS = [
 ]
 
 // Default values | 默认值
-export const DEFAULT_IMAGE_MODEL = 'doubao-seedream-4-5-251128'
-export const DEFAULT_VIDEO_MODEL = 'doubao-seedance-1-5-pro_720p'
+export const DEFAULT_IMAGE_MODEL = 'gpt-image-2'
+export const DEFAULT_VIDEO_MODEL = 'veo_3_1-fast'
 export const DEFAULT_CHAT_MODEL = 'gpt-4o-mini'
 export const DEFAULT_IMAGE_SIZE = '2048x2048'
 export const DEFAULT_VIDEO_RATIO = '16x9'

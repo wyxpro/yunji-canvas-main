@@ -33,6 +33,18 @@ const error = ref(null)
 const DEFAULT_IMAGE_MODEL_TEMPLATES = IMAGE_MODELS.map(m => ({ label: m.label, key: m.key }))
 const DEFAULT_VIDEO_MODEL_TEMPLATES = VIDEO_MODELS.map(m => ({ label: m.label, key: m.key }))
 const DEFAULT_CHAT_MODEL_TEMPLATES = CHAT_MODELS.map(m => ({ label: m.label, key: m.key }))
+const LEGACY_IMAGE_MODEL_KEYS = new Set([
+  'doubao-seedream-4-5-251128',
+  'nano-banana',
+  'nano-banana-pro'
+])
+const LEGACY_VIDEO_MODEL_KEYS = new Set([
+  'doubao-seedance-1-5-pro_720p',
+  'kling-video-o1',
+  'wan2.6_720p',
+  'sora-2',
+  'veo_3_1'
+])
 
 const readStoredJson = (key, fallback) => {
   try {
@@ -72,12 +84,18 @@ const sanitizeTemplates = (templates) => {
   return out
 }
 
+const readStoredTemplates = (key, fallback, legacyKeys = new Set()) => {
+  const stored = sanitizeTemplates(readStoredJson(key, fallback))
+  const hasLegacyModel = stored.some(item => legacyKeys.has(item.key))
+  return hasLegacyModel ? fallback : stored
+}
+
 export const imageModelTemplates = ref(
-  sanitizeTemplates(readStoredJson(STORAGE_KEYS.IMAGE_MODEL_TEMPLATES, DEFAULT_IMAGE_MODEL_TEMPLATES))
+  readStoredTemplates(STORAGE_KEYS.IMAGE_MODEL_TEMPLATES, DEFAULT_IMAGE_MODEL_TEMPLATES, LEGACY_IMAGE_MODEL_KEYS)
 )
 
 export const videoModelTemplates = ref(
-  sanitizeTemplates(readStoredJson(STORAGE_KEYS.VIDEO_MODEL_TEMPLATES, DEFAULT_VIDEO_MODEL_TEMPLATES))
+  readStoredTemplates(STORAGE_KEYS.VIDEO_MODEL_TEMPLATES, DEFAULT_VIDEO_MODEL_TEMPLATES, LEGACY_VIDEO_MODEL_KEYS)
 )
 
 export const chatModelTemplates = ref(

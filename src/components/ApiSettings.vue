@@ -15,7 +15,7 @@
             <n-form-item label="Base URL" path="baseUrl">
               <n-input
                 v-model:value="formData.baseUrl"
-                placeholder="https://api.cutb.cn/v1"
+                placeholder="请输入 Base URL"
               />
             </n-form-item>
 
@@ -43,13 +43,6 @@
             <n-alert v-if="!isConfigured" type="warning" title="未配置" class="mt-2">
               <div class="flex flex-col gap-2">
                 <p>请配置 API Key 以使用 AI 功能</p>
-                <a
-                  href="https://api.cutb.cn"
-                  target="_blank"
-                  class="text-[var(--accent-color)] hover:underline text-sm flex items-center gap-1"
-                >
-                  点击获取 API Key
-                </a>
               </div>
             </n-alert>
 
@@ -76,7 +69,7 @@
                   <template #default="{ value }">
                     <div class="flex gap-2 w-full">
                       <n-input v-model:value="value.label" placeholder="显示名称" />
-                      <n-input v-model:value="value.key" placeholder="模型 key" />
+                      <n-input v-model:value="value.key" placeholder="模型 ID" />
                     </div>
                   </template>
                 </n-dynamic-input>
@@ -98,7 +91,7 @@
                   <template #default="{ value }">
                     <div class="flex gap-2 w-full">
                       <n-input v-model:value="value.label" placeholder="显示名称" />
-                      <n-input v-model:value="value.key" placeholder="模型 key" />
+                      <n-input v-model:value="value.key" placeholder="模型 ID" />
                     </div>
                   </template>
                 </n-dynamic-input>
@@ -120,7 +113,7 @@
                   <template #default="{ value }">
                     <div class="flex gap-2 w-full">
                       <n-input v-model:value="value.label" placeholder="显示名称" />
-                      <n-input v-model:value="value.key" placeholder="模型 key" />
+                      <n-input v-model:value="value.key" placeholder="模型 ID" />
                     </div>
                   </template>
                 </n-dynamic-input>
@@ -234,14 +227,7 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-between items-center">
-        <a
-          href="https://api.cutb.cn"
-          target="_blank"
-          class="text-xs text-[var(--text-secondary)] hover:text-[var(--accent-color)] transition-colors"
-        >
-          没有 API Key？点击注册
-        </a>
+      <div class="flex justify-end items-center">
         <div class="flex gap-2">
           <n-button @click="handleClear" tertiary>清除配置</n-button>
           <n-button @click="showModal = false">取消</n-button>
