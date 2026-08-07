@@ -2,6 +2,8 @@
 
 > **作者微信：soe303** | 欢迎交流与合作
 
+推荐另一个画布工具：https://canv.cutb.cn  有兴趣可以看看，可定制
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5-4FC08D?logo=vue.js)
 ![Vue Flow](https://img.shields.io/badge/Vue%20Flow-1.48-ff0072?logo=vue.js)
